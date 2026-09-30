@@ -6,6 +6,8 @@
 
 class Chip8{
     public:
+        friend bool save_emulator_state(const Chip8& chip8, const std::string& filename);
+        friend bool load_emulator_state(Chip8& chip8, const std::string& filename);
         Chip8();
         void load_rom(const std::string& filename); // To load a game file
         void emulate_cycle(); // To execute one instruction
