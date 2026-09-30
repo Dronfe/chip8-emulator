@@ -176,7 +176,7 @@ void Chip8::emulate_cycle(){
                 case 0x0005: { // 8XY5 - V[X] -= V[Y], V[F] = NOT borrow
                     uint8_t x = (opcode & 0x0F00) >> 8;
                     uint8_t y = (opcode & 0x00F0) >> 4;
-                    uint8_t flag = (v[x] >= v[y]) ? 1 : 0;
+                    uint8_t flag = (v[x] > v[y]) ? 1 : 0;
                     v[x] -= v[y];
                     v[0xF] = flag;
                     pc += 2;
@@ -249,7 +249,7 @@ void Chip8::emulate_cycle(){
                 for(int x_line = 0; x_line < 8; x_line++){
                     if((pixel & (0x80 >> x_line)) != 0){
                         int screen_x = (x + x_line) % 64;
-                        int screen_y = (y + y_line) % 32;
+                        int screen_y = (y + y_line) % 31;
                         int screen_index = screen_x + (screen_y * 64);
 
                         if(display[screen_index] == 1) v[0xF] = 1; // Set collision flag
@@ -334,7 +334,7 @@ void Chip8::emulate_cycle(){
 
                 case 0x0055: { // FX55 - Store V0..VX in memory starting at index
                     uint8_t x = (opcode & 0x0F00) >> 8;
-                    for(int i = 0; i <= x; i++){
+                    for(int i = 0; i < x; i++){
                         memory[index + i] = v[i];
                     }
                     pc += 2;
