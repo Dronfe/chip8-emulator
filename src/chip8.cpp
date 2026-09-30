@@ -57,26 +57,30 @@ void Chip8::load_fonts(){
     for(int i = 0; i < 80; i++) memory[i] = chip8_fontset[i];
 }
 
-void Chip8::load_rom(const std::string& filename){
+bool Chip8::load_rom(const std::string& filename){
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
 
     if(!file.is_open()){
         std::cerr << "Failed to open ROM: " << filename << std::endl;
-        return;
+        return false;
     }
 
     std::streamsize size = file.tellg();
     file.seekg(0, std::ios::beg);
 
-    if(size > (4096 - 512)){ // 512 bytes reserved for fontset and interpreter
+    if(size < 0 || size > (4096 - 512)){ // 512 bytes reserved for fontset and interpreter
         std::cerr << "ROM too large to fit in memory" << std::endl;
-        return;
+        return false;
     }
 
-    file.read((char*)(memory + 512), size);
+    if (!file.read(reinterpret_cast<char*>(memory + 512), size)) {
+        std::cerr << "Failed to read ROM: " << filename << std::endl;
+        return false;
+    }
     file.close();
 
     std::cout << "Loaded ROM: " << filename << std::endl;
+    return true;
 }
 
 void Chip8::emulate_cycle(){
